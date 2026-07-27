@@ -14,8 +14,8 @@ El jugador deberá descubrir la verdad detrás de una serie de recuerdos fragmen
 
 ## Equipo de desarrollo
 - Jesús David Bautista
-- Nombre del integrante 2
-- Nombre del integrante 3
+- Eduar Jose Contreras
+- Franyel Martinez
 
 ## Estado del proyecto
 🚧 En desarrollo
