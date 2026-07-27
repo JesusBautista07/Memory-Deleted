@@ -1,2 +1,24 @@
-# Memory-Deleted
-Explora lugares olvidados, descubre recuerdos ocultos y enfréntate a los horrores que acechan en la oscuridad.
+# Memory Deleted
+
+## Descripción
+Memory Deleted es un videojuego de terror psicológico en primera persona centrado en la exploración, la narrativa y una atmósfera inquietante.
+
+## Historia
+El jugador deberá descubrir la verdad detrás de una serie de recuerdos fragmentados mientras explora escenarios oscuros y enfrenta sucesos cada vez más perturbadores.
+
+## Tecnologías
+- Godot 4.7
+- GDScript
+- Git
+- GitHub
+
+## Equipo de desarrollo
+- Jesús David Bautista
+- Nombre del integrante 2
+- Nombre del integrante 3
+
+## Estado del proyecto
+🚧 En desarrollo
+
+## Objetivo
+Crear una experiencia de terror inmersiva donde la historia, el sonido y la tensión sean los elementos principales del juego.
