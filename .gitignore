@@ -1,3 +1,22 @@
 # Godot 4+ specific ignores
 .godot/
+.import/
 /android/
+
+# Export files
+export.cfg
+export_credentials.cfg
+
+# Temporary files
+*.tmp
+
+# Imported translations
+*.translation
+
+# Mono (C#) specific
+.mono/
+data_*/
+mono_crash.*.json
+
+# Media index (Android)
+.nomedia
