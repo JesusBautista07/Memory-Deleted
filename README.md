@@ -15,7 +15,7 @@ El jugador deberá descubrir la verdad detrás de una serie de recuerdos fragmen
 ## Equipo de desarrollo
 - Jesús David Bautista
 - Eduar Jose Contreras
-- Franyel Martinez
+- Franyel Fransisco Martinez
 
 ## Estado del proyecto
 🚧 En desarrollo
