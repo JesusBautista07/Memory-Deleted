@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://bp3a1kcre8lqb"]
 
-[ext_resource type="Script" path="res://scripts/player/player_movement.gd" id="1_movement"]
+[ext_resource type="Script" uid="uid://egmyyo5lvhl8" path="res://scripts/player/player_movement.gd" id="1_movement"]
+[ext_resource type="Script" uid="uid://bylxa6wjmaxtx" path="res://scripts/camera/camera_controller.gd" id="2_gfjak"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
@@ -11,3 +12,9 @@ script = ExtResource("1_movement")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_body")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+script = ExtResource("2_gfjak")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13006186, 0.06540555, -0.018352032)
