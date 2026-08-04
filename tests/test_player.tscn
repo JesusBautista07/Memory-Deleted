@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://c5h3n5wvo6n2l"]
+[gd_scene load_steps=30 format=3 uid="uid://cgyo5gkscui4a"]
 
 [sub_resource type="StandardMaterial3D" id="StdMat_floor"]
 albedo_color = Color(0.4, 0.4, 0.45, 1)
@@ -91,6 +91,7 @@ size = Vector3(200, 2, 200)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6689857, 0.3165176, -1.1088057)
 material_override = SubResource("StdMat_floor")
 mesh = SubResource("BoxMesh_floor")
 
@@ -145,6 +146,7 @@ shape = SubResource("BoxShape3D_wall_ns")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 2)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Corridor/CorridorWall_R"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.949678, 0.32832122, -1.8157995)
 material_override = SubResource("StdMat_wall")
 mesh = SubResource("BoxMesh_wall_ns")
 
