@@ -24,3 +24,4 @@ El jugador deberá descubrir la verdad detrás de una serie de recuerdos fragmen
 Crear una experiencia de terror inmersiva donde la historia, el sonido y la tensión sean los elementos principales del juego.
 
 otro cambio para probar el commit
+hola
