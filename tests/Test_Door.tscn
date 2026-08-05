@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://dytfg7mgmxxxg"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2_bfg7k"]
+[ext_resource type="PackedScene" path="res://scenes/objects/Door.tscn" id="2_door"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(10, 0.2, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(10, 0.2, 10)
+
+[node name="Test_Door" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8, -0.35, 0.48, 0, 0.8, 0.6, -0.6, -0.48, 0.64, 0, 5, 0)
+shadow_enabled = true
+
+[node name="Door" parent="." instance=ExtResource("2_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+key_id = "key_basement"
+starts_locked = true
+
+[node name="Player" parent="." instance=ExtResource("2_bfg7k")]

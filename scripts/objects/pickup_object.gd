@@ -38,7 +38,7 @@ func deactivate() -> void:
 		visual_root.visible = false
 	else:
 		visible = false
-
+		
 func is_picked_up() -> bool:
 	return _picked_up
 
