@@ -3,6 +3,9 @@ class_name PickupObject
 
 signal picked_up(object_data: ObjectData, source: PickupObject)
 signal storage_rejected(object_data: ObjectData, source: PickupObject)
+signal sent_to_inventory(object_data: ObjectData, source: PickupObject, accepted: bool)
+
+const INVENTORY_GROUP := "inventory"
 
 @export var object_data: ObjectData
 @export var disable_on_pickup: bool = true
@@ -23,6 +26,7 @@ func interact() -> void:
 
 	_picked_up = true
 	picked_up.emit(object_data, self)
+	_send_to_inventory()
 	super.interact()
 
 	if disable_on_pickup:
@@ -50,3 +54,13 @@ func is_key_item() -> bool:
 	if object_data == null:
 		return false
 	return object_data.is_key_item
+
+func _send_to_inventory() -> void:
+	var inventory: Node = get_tree().get_first_node_in_group(INVENTORY_GROUP)
+
+	if inventory == null or not inventory.has_method("add_item"):
+		sent_to_inventory.emit(object_data, self, false)
+		return
+
+	var accepted: bool = inventory.call("add_item", object_data, self)
+	sent_to_inventory.emit(object_data, self, accepted)
