@@ -1,118 +1,80 @@
 extends Node
 class_name EventManager
-## Infraestructura base del sistema de eventos.
-## No implementa lógica de diálogos, cinemáticas, sonido, iluminación,
-## enemigos, recuerdos, puertas ni puzles: solo emite las señales
-## correspondientes para que esos sistemas se conecten después.
-##
-## No es un autoload (no se modifica project.godot). Para que
-## EventTrigger u otros nodos lo encuentren sin acoplarse a él,
-## esta instancia se añade al grupo "event_manager".
 
-signal dialog_requested(event_id: String, payload: Dictionary)
-signal cutscene_requested(event_id: String, payload: Dictionary)
-signal sound_requested(event_id: String, payload: Dictionary)
-signal lighting_requested(event_id: String, payload: Dictionary)
-signal enemy_requested(event_id: String, payload: Dictionary)
-signal memory_requested(event_id: String, payload: Dictionary)
-signal door_requested(event_id: String, payload: Dictionary)
-signal puzzle_requested(event_id: String, payload: Dictionary)
-signal custom_event_requested(event_id: String, payload: Dictionary)
-
+signal event_triggered(event_id: String, payload: Dictionary)
 signal event_registered(event_id: String)
-signal event_triggered(event_id: String)
+signal event_completed(event_id: String)
 
-enum EventType {
-	DIALOG,
-	CUTSCENE,
-	SOUND,
+enum EventCategory {
+	NONE,
+	ZONE,
+	DIALOGUE,
+	CINEMATIC,
 	LIGHTING,
+	SOUND,
 	ENEMY,
 	MEMORY,
-	DOOR,
-	PUZZLE,
-	CUSTOM,
 }
 
-const GROUP_NAME := "event_manager"
+var _registered_events: Dictionary = {}
+var _completed_events: Dictionary = {}
+var _category_handlers: Dictionary = {}
 
-var _events: Dictionary = {}  # id: String -> Dictionary(type, payload, once, triggered)
-
-
-func _ready() -> void:
-	add_to_group(GROUP_NAME)
-
-
-func register_event(event_id: String, type: EventType, payload: Dictionary = {}, once: bool = false) -> bool:
+func register_event(event_id: String, category: EventCategory = EventCategory.NONE, data: Dictionary = {}) -> void:
 	if event_id.is_empty():
-		return false
+		return
 
-	_events[event_id] = {
-		"type": type,
-		"payload": payload,
-		"once": once,
-		"triggered": false,
+	_registered_events[event_id] = {
+		"category": category,
+		"data": data,
 	}
 	event_registered.emit(event_id)
-	return true
 
+func unregister_event(event_id: String) -> void:
+	_registered_events.erase(event_id)
 
-func has_event(event_id: String) -> bool:
-	return _events.has(event_id)
+func is_event_registered(event_id: String) -> bool:
+	return _registered_events.has(event_id)
 
+func has_event_completed(event_id: String) -> bool:
+	return _completed_events.has(event_id)
 
-func trigger_event(event_id: String) -> bool:
-	if not has_event(event_id):
-		return false
+func trigger_event(event_id: String, payload: Dictionary = {}) -> void:
+	if event_id.is_empty():
+		return
 
-	var event: Dictionary = _events[event_id]
+	if not _registered_events.has(event_id):
+		register_event(event_id)
 
-	if event.once and event.triggered:
-		return false
+	event_triggered.emit(event_id, payload)
+	_dispatch_to_category(event_id, payload)
 
-	event.triggered = true
-	_emit_event_signal(event_id, event.type, event.payload)
-	event_triggered.emit(event_id)
-	return true
+func complete_event(event_id: String) -> void:
+	_completed_events[event_id] = true
+	event_completed.emit(event_id)
 
+func get_event_category(event_id: String) -> EventCategory:
+	if not _registered_events.has(event_id):
+		return EventCategory.NONE
+	return _registered_events[event_id]["category"]
 
-func trigger_events(event_ids: Array) -> void:
-	for event_id in event_ids:
-		trigger_event(event_id)
+func get_event_data(event_id: String) -> Dictionary:
+	if not _registered_events.has(event_id):
+		return {}
+	return _registered_events[event_id]["data"]
 
+func register_category_handler(category: EventCategory, handler: Callable) -> void:
+	_category_handlers[category] = handler
 
-func reset_event(event_id: String) -> bool:
-	if not has_event(event_id):
-		return false
+func unregister_category_handler(category: EventCategory) -> void:
+	_category_handlers.erase(category)
 
-	_events[event_id].triggered = false
-	return true
+func _dispatch_to_category(event_id: String, payload: Dictionary) -> void:
+	var category: EventCategory = get_event_category(event_id)
 
+	if not _category_handlers.has(category):
+		return
 
-func is_event_triggered(event_id: String) -> bool:
-	if not has_event(event_id):
-		return false
-
-	return _events[event_id].triggered
-
-
-func _emit_event_signal(event_id: String, type: EventType, payload: Dictionary) -> void:
-	match type:
-		EventType.DIALOG:
-			dialog_requested.emit(event_id, payload)
-		EventType.CUTSCENE:
-			cutscene_requested.emit(event_id, payload)
-		EventType.SOUND:
-			sound_requested.emit(event_id, payload)
-		EventType.LIGHTING:
-			lighting_requested.emit(event_id, payload)
-		EventType.ENEMY:
-			enemy_requested.emit(event_id, payload)
-		EventType.MEMORY:
-			memory_requested.emit(event_id, payload)
-		EventType.DOOR:
-			door_requested.emit(event_id, payload)
-		EventType.PUZZLE:
-			puzzle_requested.emit(event_id, payload)
-		EventType.CUSTOM:
-			custom_event_requested.emit(event_id, payload)
+	var handler: Callable = _category_handlers[category]
+	if handler.is_valid():
+		handler.call(event_id, payload)
