@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8k2n5rq7wj4t"]
+
+[ext_resource type="Script" path="res://scripts/events/event_trigger.gd" id="1_trigger"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_zone"]
+size = Vector3(2, 2, 2)
+
+[node name="EventTrigger" type="Area3D"]
+monitoring = true
+monitorable = false
+script = ExtResource("1_trigger")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_zone")
