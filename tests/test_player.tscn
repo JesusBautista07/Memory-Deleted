@@ -1,6 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://dqf7t2qax3k41"]
+[gd_scene load_steps=23 format=3 uid="uid://dqf7t2qax3k41"]
 
 [ext_resource type="PackedScene" uid="uid://bp3a1kcre8lqb" path="res://scenes/player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://dgaksrok6ieyo" path="res://scenes/ui/menu/PauseMenu.tscn" id="2_a42ji"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(50, 1, 50)
@@ -274,3 +275,5 @@ position = Vector3(0, 1, 5)
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
+
+[node name="PauseMenu" parent="." instance=ExtResource("2_a42ji")]

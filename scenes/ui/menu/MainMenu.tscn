@@ -1,3 +1,75 @@
-[gd_scene format=3 uid="uid://bly05lp2ej276"]
+[gd_scene load_steps=4 format=3 uid="uid://bxq7a2mainmenu"]
 
-[node name="MainMenu" type="Node2D" unique_id=1541633979]
+[ext_resource type="Script" path="res://scripts/ui/menu/main_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu/OptionsMenu.tscn" id="2_options"]
+[ext_resource type="PackedScene" path="res://scenes/ui/menu/CreditsMenu.tscn" id="3_credits"]
+
+[node name="MainMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.08, 0.1, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="MainButtons" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/MainButtons"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "Memory Deleted"
+
+[node name="ButtonNewGame" type="Button" parent="CenterContainer/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Nuevo Juego"
+
+[node name="ButtonContinue" type="Button" parent="CenterContainer/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+disabled = true
+text = "Continuar"
+
+[node name="ButtonSettings" type="Button" parent="CenterContainer/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Ajustes"
+
+[node name="ButtonCredits" type="Button" parent="CenterContainer/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Créditos"
+
+[node name="ButtonQuit" type="Button" parent="CenterContainer/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+text = "Salir"
+
+[node name="OptionsMenu" parent="." instance=ExtResource("2_options")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CreditsMenu" parent="." instance=ExtResource("3_credits")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0

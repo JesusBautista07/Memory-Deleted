@@ -1,3 +1,242 @@
-[gd_scene format=3 uid="uid://y1syltddnxs4"]
+[gd_scene load_steps=2 format=3 uid="uid://bxq6a2options"]
 
-[node name="OptionsMenu" type="Node2D"]
+[ext_resource type="Script" path="res://scripts/ui/menu/options_menu.gd" id="1_script"]
+
+[node name="OptionsMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(760, 560)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "Ajustes"
+
+[node name="Tabs" type="TabContainer" parent="CenterContainer/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 440)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Controles" type="ScrollContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs"]
+layout_mode = 2
+
+[node name="ControlsList" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Controles"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Mouse" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs"]
+layout_mode = 2
+
+[node name="SensitivityRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse/SensitivityRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Sensibilidad"
+
+[node name="SensitivitySlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse/SensitivityRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="InvertYRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse/InvertYRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Invertir eje Y"
+
+[node name="InvertYCheckBox" type="CheckBox" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Mouse/InvertYRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Video" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs"]
+layout_mode = 2
+
+[node name="FullscreenRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FullscreenRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Pantalla completa"
+
+[node name="FullscreenCheckBox" type="CheckBox" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FullscreenRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ResolutionRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/ResolutionRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Resolución"
+
+[node name="ResolutionOption" type="OptionButton" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/ResolutionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="VSyncRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/VSyncRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "VSync"
+
+[node name="VSyncCheckBox" type="CheckBox" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/VSyncRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FPSLimitRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FPSLimitRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Límite de FPS"
+
+[node name="FPSLimitOption" type="OptionButton" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FPSLimitRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="QualityRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/QualityRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Calidad gráfica"
+
+[node name="QualityOption" type="OptionButton" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/QualityRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="FOVRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FOVRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Campo de visión (FOV)"
+
+[node name="FOVSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/FOVRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="BrightnessRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/BrightnessRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Brillo"
+
+[node name="BrightnessSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Video/BrightnessRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="Audio" type="VBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs"]
+layout_mode = 2
+
+[node name="MasterRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/MasterRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Volumen General"
+
+[node name="MasterVolumeSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/MasterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="MusicRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/MusicRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Volumen Música"
+
+[node name="MusicVolumeSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/MusicRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/SFXRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Volumen Efectos"
+
+[node name="SFXVolumeSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/SFXRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="AmbienceRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/AmbienceRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Volumen Ambiente"
+
+[node name="AmbienceVolumeSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/AmbienceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="VoicesRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/VoicesRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Volumen Voces"
+
+[node name="VoicesVolumeSlider" type="HSlider" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio/VoicesRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="ResetDefaultsButton" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer/Tabs/Audio"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restaurar valores por defecto"
+
+[node name="ButtonClose" type="Button" parent="CenterContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cerrar"
