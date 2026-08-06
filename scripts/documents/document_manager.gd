@@ -7,6 +7,7 @@ signal page_changed(document_data: DocumentData, page_index: int)
 signal document_marked_read(document_data: DocumentData)
 
 const GROUP_NAME := "document_manager"
+const SAVEABLE_GROUP_NAME := "saveable_documents"
 const INVENTORY_GROUP := "inventory"
 const EVENT_MANAGER_GROUP := "event_manager"
 
@@ -18,6 +19,7 @@ var _current_page: int = 0
 
 func _ready() -> void:
 	add_to_group(GROUP_NAME)
+	add_to_group(SAVEABLE_GROUP_NAME)
 	_index_documents()
 	_connect_inventory()
 
@@ -89,23 +91,33 @@ func get_current_page_image() -> Texture2D:
 		return null
 	return _current_document.get_page_image(_current_page)
 
-func get_save_data() -> Dictionary:
-	var data: Dictionary = {}
+## Contrato consumido por SaveManager para el grupo "saveable_documents".
+## Devuelve el estado de lectura de todos los documentos indexados como
+## Array de Dictionary, listo para ser asignado directamente a
+## SaveData.documents (Array).
+func get_read_documents() -> Array:
+	var data: Array = []
 	for document_id in _documents_by_id.keys():
 		var doc: DocumentData = _documents_by_id[document_id]
-		data[document_id] = {
+		data.append({
+			"id": document_id,
 			"is_read": doc.is_read,
 			"date_obtained": doc.date_obtained,
 			"last_page": _current_page if doc == _current_document else 0,
-		}
+		})
 	return data
 
-func load_save_data(data: Dictionary) -> void:
-	for document_id in data.keys():
+## Contrato consumido por SaveManager para el grupo "saveable_documents".
+## Restaura el estado de lectura a partir de los datos devueltos
+## previamente por get_read_documents().
+func load_read_documents(data: Array) -> void:
+	for entry in data:
+		if not (entry is Dictionary) or not entry.has("id"):
+			continue
+		var document_id: String = entry["id"]
 		if not _documents_by_id.has(document_id):
 			continue
 		var doc: DocumentData = _documents_by_id[document_id]
-		var entry: Dictionary = data[document_id]
 		doc.is_read = entry.get("is_read", false)
 		doc.date_obtained = entry.get("date_obtained", "")
 

@@ -2,11 +2,11 @@ extends Control
 class_name InventoryUI
 
 signal closed
-signal document_item_added(item: InventoryItem)
+signal document_item_added(item: ObjectData)
 
-const INVENTORY_MANAGER_GROUP := "inventory_manager"
+const INVENTORY_GROUP := "inventory"
 
-@export var inventory_manager_path: NodePath
+@export var inventory_path: NodePath
 
 @onready var _category_tabs: TabBar = %CategoryTabs
 @onready var _item_list: ItemList = %ItemList
@@ -14,33 +14,32 @@ const INVENTORY_MANAGER_GROUP := "inventory_manager"
 @onready var _item_description_label: Label = %ItemDescriptionLabel
 @onready var _button_close: Button = %ButtonClose
 
-var _inventory_manager: InventoryManager = null
+var _inventory: Inventory = null
 var _list_ids: Array[String] = []
 
 func _ready() -> void:
 	_button_close.pressed.connect(_on_button_close_pressed)
 	_item_list.item_selected.connect(_on_item_list_item_selected)
-	_resolve_inventory_manager()
+	_resolve_inventory()
 
-func _resolve_inventory_manager() -> void:
-	if not inventory_manager_path.is_empty():
-		var node: Node = get_node_or_null(inventory_manager_path)
-		if node is InventoryManager:
-			_bind_inventory_manager(node)
+func _resolve_inventory() -> void:
+	if not inventory_path.is_empty():
+		var node: Node = get_node_or_null(inventory_path)
+		if node is Inventory:
+			_bind_inventory(node)
 			return
 
-	var found: Node = get_tree().get_first_node_in_group(INVENTORY_MANAGER_GROUP)
-	if found is InventoryManager:
-		_bind_inventory_manager(found)
+	var found: Node = get_tree().get_first_node_in_group(INVENTORY_GROUP)
+	if found is Inventory:
+		_bind_inventory(found)
 
-func set_inventory_manager(manager: InventoryManager) -> void:
-	_bind_inventory_manager(manager)
+func set_inventory(inventory: Inventory) -> void:
+	_bind_inventory(inventory)
 
-func _bind_inventory_manager(manager: InventoryManager) -> void:
-	_inventory_manager = manager
-	_inventory_manager.item_added.connect(_on_item_added)
-	_inventory_manager.item_removed.connect(_on_item_removed)
-	_inventory_manager.inventory_cleared.connect(_on_inventory_cleared)
+func _bind_inventory(inventory: Inventory) -> void:
+	_inventory = inventory
+	_inventory.item_added.connect(_on_item_added)
+	_inventory.item_removed.connect(_on_item_removed)
 	refresh()
 
 func refresh() -> void:
@@ -48,42 +47,35 @@ func refresh() -> void:
 	_list_ids.clear()
 	_clear_details()
 
-	if _inventory_manager == null:
+	if _inventory == null:
 		return
 
-	for item in _inventory_manager.get_all_items():
+	for item in _inventory.get_items():
 		_add_item_to_list(item)
 
-func _add_item_to_list(item: InventoryItem) -> void:
-	var label: String = item.nombre
-	if item.apilable and item.cantidad > 1:
-		label += " x%d" % item.cantidad
+func _add_item_to_list(item: ObjectData) -> void:
+	_item_list.add_item(item.object_name)
+	_list_ids.append(item.object_id)
 
-	_item_list.add_item(label)
-	_list_ids.append(item.id)
-
-	if item.es_documento():
+	if _inventory.is_document(item.object_id):
 		document_item_added.emit(item)
 
-func _on_item_added(_item: InventoryItem) -> void:
+func _on_item_added(_item: ObjectData) -> void:
 	refresh()
 
-func _on_item_removed(_item: InventoryItem) -> void:
-	refresh()
-
-func _on_inventory_cleared() -> void:
+func _on_item_removed(_item: ObjectData) -> void:
 	refresh()
 
 func _on_item_list_item_selected(index: int) -> void:
 	if index < 0 or index >= _list_ids.size():
 		return
 
-	var item: InventoryItem = _inventory_manager.find_item(_list_ids[index])
+	var item: ObjectData = _inventory.get_item(_list_ids[index])
 	if item == null:
 		return
 
-	_item_name_label.text = item.nombre
-	_item_description_label.text = item.descripcion
+	_item_name_label.text = item.object_name
+	_item_description_label.text = item.description
 
 func _clear_details() -> void:
 	_item_name_label.text = ""

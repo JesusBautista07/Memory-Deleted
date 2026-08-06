@@ -7,12 +7,14 @@ signal document_registered(object_data: ObjectData, source: PickupObject)
 signal inventory_changed(items: Array)
 
 const GROUP_NAME := "inventory"
+const SAVEABLE_GROUP_NAME := "saveable_inventory"
 
 var _items: Array[ObjectData] = []
 var _document_ids: Array[String] = []
 
 func _ready() -> void:
 	add_to_group(GROUP_NAME)
+	add_to_group(SAVEABLE_GROUP_NAME)
 
 func add_item(object_data: ObjectData, source: PickupObject = null) -> bool:
 	if object_data == null:
@@ -69,3 +71,25 @@ func _register_document(object_data: ObjectData, source: PickupObject) -> void:
 		return
 	_document_ids.append(object_data.object_id)
 	document_registered.emit(object_data, source)
+
+## Contrato consumido por SaveManager para el grupo "saveable_inventory".
+## Devuelve el estado actual como object_id -> ObjectData, listo para ser
+## asignado directamente a SaveData.inventory (Dictionary).
+func save_state() -> Dictionary:
+	var state: Dictionary = {}
+	for data in _items:
+		state[data.object_id] = data
+	return state
+
+## Contrato consumido por SaveManager para el grupo "saveable_inventory".
+## Restaura _items a partir de los datos devueltos previamente por
+## save_state(). No dispara document_registered: el estado de lectura de
+## documentos se restaura por separado a través del propio DocumentManager.
+func load_state(state: Dictionary) -> void:
+	_items.clear()
+	for object_id in state.keys():
+		var data: ObjectData = state[object_id]
+		if data == null:
+			continue
+		_items.append(data)
+	inventory_changed.emit(get_items())
