@@ -2,7 +2,8 @@ extends CharacterBody3D
 class_name PlayerMovement
 ## Sistema de movimiento del jugador en primera persona.
 ## Responsable ÚNICAMENTE de: input WASD, caminar/correr, agacharse,
-## salto, gravedad, colisiones, movimiento en pendientes y reinicio por caída.
+## salto, gravedad, colisiones, movimiento en pendientes, subida de
+## escalones pequeños y reinicio por caída.
 ## No gestiona cámara, mouse-look, inventario ni interacción.
 
 # ---------------------------------------------------------------------------
@@ -17,7 +18,15 @@ class_name PlayerMovement
 
 @export_group("Salto y Gravedad")
 @export var jump_velocity: float = 4.5
-@export var gravity_multiplier: float = 1.0   # por si se necesita ajustar el "peso" del jugador
+## Multiplicador de gravedad mientras el jugador SUBE (tras saltar).
+## >1.0 controla el salto sin quitarle toda la altura.
+@export var gravity_multiplier: float = 1.3
+## Multiplicador de gravedad mientras el jugador CAE. Debe ser mayor que
+## el de subida: es lo que da la sensación de "peso" y evita la flotación.
+@export var fall_gravity_multiplier: float = 3.0
+## Velocidad máxima de caída (positivo). Evita que a alta velocidad el
+## jugador atraviese el suelo en un solo frame (tunneling).
+@export var max_fall_speed: float = 22.0
 
 @export_group("Agacharse (Ctrl)")
 @export var can_crouch: bool = true
@@ -25,6 +34,13 @@ class_name PlayerMovement
 
 @export_group("Pendientes")
 @export var floor_max_angle_deg: float = 46.0   # ángulo máximo caminable
+
+@export_group("Escalones (subida automática)")
+## Alto máximo de escalón que el jugador sube caminando, sin saltar.
+## Calibrado sobre los escalones de PlayableDemo.tscn (0.27 m).
+@export var step_height: float = 0.32
+## Distancia hacia delante que se comprueba para detectar un escalón.
+@export var step_check_distance: float = 0.4
 
 @export_group("Reinicio automático por caída")
 @export var enable_fall_reset: bool = true
@@ -56,6 +72,24 @@ func _ready() -> void:
 	# que es lo que espera CharacterBody3D.
 	floor_max_angle = deg_to_rad(floor_max_angle_deg)
 
+	# --- Ajustes de CharacterBody3D para pendientes/escaleras estables ---
+	# floor_snap_length: "pega" al jugador al suelo cuando baja pequeños
+	# desniveles (bordes de escalón, irregularidades de la rampa) en vez
+	# de dejarlo caer en caída libre en cada uno. Sin esto el jugador
+	# "rebota" ligeramente al bajar escaleras.
+	floor_snap_length = step_height + 0.05
+	# Evita que el jugador se deslice solo por estar de pie en la rampa.
+	floor_stop_on_slope = true
+	# Mantiene la velocidad horizontal constante al subir/bajar pendientes,
+	# en vez de perder velocidad artificialmente (lo que se sentía "raro").
+	floor_constant_speed = true
+	# No hay razón para considerar suelo lo que en realidad es una pared.
+	floor_block_on_wall = true
+	# Margen de seguridad un poco mayor al de por defecto: reduce las
+	# micro-vibraciones contra escalones/paredes sin introducir huecos
+	# perceptibles.
+	safe_margin = 0.01
+
 	# Guarda las medidas originales de la cápsula de colisión para poder
 	# restaurarlas correctamente al dejar de agacharse.
 	if collision_shape and collision_shape.shape is CapsuleShape3D:
@@ -72,6 +106,12 @@ func _physics_process(delta: float) -> void:
 	_handle_jump_input()
 	_handle_horizontal_movement(delta)
 
+	# Antes de resolver el movimiento, comprueba si hay un escalón bajo
+	# delante y, si lo hay, "teletransporta" verticalmente al jugador por
+	# encima de él. move_and_slide() se encarga después de la parte
+	# horizontal y de volver a asentarlo en el suelo (floor_snap_length).
+	_try_step_up()
+
 	# move_and_slide() ya gestiona colisiones y, junto con floor_max_angle,
 	# el deslizamiento correcto sobre pendientes caminables.
 	move_and_slide()
@@ -82,10 +122,19 @@ func _physics_process(delta: float) -> void:
 # ---------------------------------------------------------------------------
 # GRAVEDAD
 # ---------------------------------------------------------------------------
+# Se usan dos multiplicadores distintos según el jugador esté subiendo o
+# bajando: una caída más pesada que la subida es lo que da la sensación de
+# "peso" real y evita la sensación de flotar tras el salto (técnica estándar
+# de "fall multiplier"). Además se limita la velocidad máxima de caída para
+# que a alta velocidad no llegue a atravesar el suelo en un solo frame.
 
 func _apply_gravity(delta: float) -> void:
-	if not is_on_floor():
-		velocity.y -= gravity * gravity_multiplier * delta
+	if is_on_floor():
+		return
+
+	var effective_gravity := gravity * (gravity_multiplier if velocity.y > 0.0 else fall_gravity_multiplier)
+	velocity.y -= effective_gravity * delta
+	velocity.y = max(velocity.y, -max_fall_speed)
 
 
 # ---------------------------------------------------------------------------
@@ -157,6 +206,59 @@ func _handle_horizontal_movement(delta: float) -> void:
 	# se siente más natural y evita "teletransportes" de velocidad.
 	velocity.x = move_toward(velocity.x, target_velocity_x, acceleration * delta)
 	velocity.z = move_toward(velocity.z, target_velocity_z, acceleration * delta)
+
+
+# ---------------------------------------------------------------------------
+# SUBIDA AUTOMÁTICA DE ESCALONES PEQUEÑOS (subir escaleras caminando)
+# ---------------------------------------------------------------------------
+# CharacterBody3D no sube por sí solo un escalón vertical (no es una
+# pendiente, así que floor_max_angle no aplica). La técnica estándar es:
+# 1) Comprobar, sin mover realmente al cuerpo, si el movimiento horizontal
+#    previsto para este frame chocaría con algo.
+# 2) Si choca, repetir la misma comprobación pero partiendo de una posición
+#    "step_height" más arriba.
+# 3) Si desde ahí el camino queda libre, es un escalón bajo: se sube al
+#    jugador esa altura y move_and_slide() + floor_snap_length hacen el
+#    resto (avanzar y volver a asentarlo en el nuevo nivel).
+# Si el camino sigue bloqueado incluso más arriba, es una pared real y no
+# se hace nada (así no se "escala" ni se atraviesan muros).
+
+func _try_step_up() -> void:
+	if not is_on_floor() or is_crouching:
+		return
+
+	# No interferir con el salto: solo aplica a movimiento a ras de suelo.
+	if velocity.y > 0.0:
+		return
+
+	var horizontal_velocity := Vector3(velocity.x, 0.0, velocity.z)
+	if horizontal_velocity.length() < 0.1:
+		return
+
+	var motion := horizontal_velocity.normalized() * step_check_distance
+
+	var params := PhysicsTestMotionParameters3D.new()
+	params.from = global_transform
+	params.motion = motion
+	params.margin = safe_margin
+
+	var result := PhysicsTestMotionResult3D.new()
+	var blocked_at_feet := PhysicsServer3D.body_test_motion(get_rid(), params, result)
+
+	if not blocked_at_feet:
+		return  # No hay obstáculo delante: no es necesario subir nada.
+
+	# Repite la comprobación como si el jugador ya estuviera "step_height"
+	# más arriba, para distinguir un escalón bajo de una pared real.
+	var raised_transform := global_transform
+	raised_transform.origin.y += step_height
+	params.from = raised_transform
+
+	var result_raised := PhysicsTestMotionResult3D.new()
+	var blocked_above := PhysicsServer3D.body_test_motion(get_rid(), params, result_raised)
+
+	if not blocked_above:
+		global_position.y += step_height
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://dpld58jhq2nxr"]
+[gd_scene load_steps=38 format=3 uid="uid://dpld58jhq2nxr"]
 
 [ext_resource type="PackedScene" uid="uid://bp3a1kcre8lqb" path="res://scenes/player/Player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://dgaksrok6ieyo" path="res://scenes/ui/menu/PauseMenu.tscn" id="2_pause"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dnb3spsbhw0p4" path="res://scenes/ui/hud/InteractionPrompt.tscn" id="4_prompt"]
 [ext_resource type="Script" uid="uid://80yxw6wnawxv" path="res://scripts/objects/pickup_object.gd" id="5_pickup"]
 [ext_resource type="Script" uid="uid://c36ae46xif0dt" path="res://scripts/objects/object_data.gd" id="6_objdata"]
+[ext_resource type="Script" uid="uid://d4c6oqk0y6y6r" path="res://scripts/inventory/inventory.gd" id="7_inventory"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_main"]
 
@@ -123,6 +124,23 @@ func show_interaction() -> void:
 func hide_interaction() -> void:
 	if _prompt and _prompt.has_method(\"hide_prompt\"):
 		_prompt.call(\"hide_prompt\")
+"
+
+[sub_resource type="GDScript" id="GDScript_door_bridge"]
+resource_name = "door_interact_bridge"
+script/source = "extends StaticBody3D
+## Puente mínimo: le da a la puerta un método interact() para que
+## InteractionManager pueda detectarla con el RayCast3D, sin tocar door.gd.
+
+@export var door_path: NodePath
+
+func interact() -> void:
+	var door := get_node_or_null(door_path)
+	if door and door.has_method(\"try_open\"):
+		door.call(\"try_open\", [])
+
+func get_interaction_prompt() -> String:
+	return \"Presiona E para abrir/cerrar la puerta\"
 "
 
 [node name="PlayableDemo" type="Node3D"]
@@ -344,8 +362,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
 [node name="Player" parent="." instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
 
+[node name="RayCast3D" type="RayCast3D" parent="Player/CameraPivot/Camera3D"]
+target_position = Vector3(0, 0, -2.5)
+
 [node name="Door" parent="." instance=ExtResource("3_door")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -25)
+
+[node name="DoorStaticBody" parent="Door/DoorPivot" index="0"]
+script = SubResource("GDScript_door_bridge")
+door_path = NodePath("../..")
 
 [node name="Pickup_Linterna" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.3, 8)
@@ -383,7 +408,10 @@ grow_vertical = 0
 
 [node name="InteractionManager" type="Node3D" parent="."]
 script = SubResource("GDScript_interaction")
-prompt_path = NodePath("HUD/InteractionPrompt")
-ray_cast = NodePath("Player/CameraPivot/Camera3D/RayCast3D")
+prompt_path = NodePath("../HUD/InteractionPrompt")
+ray_cast = NodePath("../Player/CameraPivot/Camera3D/RayCast3D")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("7_inventory")
 
 [node name="PauseMenu" parent="." instance=ExtResource("2_pause")]

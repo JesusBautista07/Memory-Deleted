@@ -38,7 +38,18 @@ func deactivate() -> void:
 		visual_root.visible = false
 	else:
 		set("visible", false)
-		
+
+	# Además de ocultarlo, se desactiva su colisión: sin esto el objeto
+	# seguía siendo sólido y detectable por el RayCast de interacción
+	# aunque ya estuviera invisible y guardado en el inventario.
+	# Se usa is_instance_of()/set() en vez de "is"/"as" porque PickupObject
+	# hereda de Node (vía Interactable), no de CollisionObject3D: el
+	# comprobador estático de tipos no puede relacionarlos, aunque en
+	# runtime el nodo real (StaticBody3D, etc.) sí lo sea.
+	if is_instance_of(self, CollisionObject3D):
+		set("collision_layer", 0)
+		set("collision_mask", 0)
+
 func is_picked_up() -> bool:
 	return _picked_up
 
